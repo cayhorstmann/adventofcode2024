@@ -1,3 +1,7 @@
+import java.io.IO;
+import java.io.IOException;
+import java.nio.file.Path;
+
 record Rule(int before, int after) {}
 
 Set<Rule> rules;
@@ -60,14 +64,14 @@ Object part2() throws IOException {
     return sum;
 }
 
+Path path(String suffix) { return Path.of("inputs/input" + Integer.parseInt(getClass().getName().replaceAll("\\D", "")) + suffix); }
+
 void main() throws IOException {
     long start = System.nanoTime();
-    int day = Integer.parseInt(getClass().getName().replaceAll("\\D", ""));
-    String path = "inputs/input" + day;
-    parse(Path.of(path + "a"));
+    parse(path("a"));
     IO.println(part1());
     IO.println(part2());
-    parse(Path.of(path));
+    parse(path("z"));
     IO.println(part1());
     IO.println(part2());
     IO.println("%.3f sec".formatted((System.nanoTime() - start) / 1E9));
