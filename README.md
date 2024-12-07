@@ -13,7 +13,7 @@ As you can see, all solutions have a common structure:
 * The file name is `Day`*n*`.java`
 * Instance variables of the implicit class
 * A `parse` method that reads the input and initializes the instance variables. Be sure to initialize them all!
-* Methods part1() and part2() that provide the result for Part 1 and Part 2 of the puzzle
+* Methods `part1()` and `part2()` that provide the result for Part 1 and Part 2 of the puzzle
 
 I realize that I could squeeze out a bit more commonality with a common superclass, but I wanted to keep the magic to a minimum. Instead, I just copy/paste this template every day:
 
