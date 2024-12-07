@@ -17,12 +17,26 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.ToIntBiFunction;
 
-public class Graphs { // TODO GraphUtil
+public class Graphs {
+    /**
+     * Breadth first search
+     * @param <V> The type of the graph's nodes
+     * @param root the starting node for the search
+     * @param neighbors yields the set of neighbors for any vertex 
+     * @return a map that maps each reachable vertex to its predecessor      
+     */
 	public static <V> Map<V, V> bfs(V root, Function<V, Set<V>> neighbors) {
-		return bfs(root, neighbors, __ -> {
-		});
+		return bfs(root, neighbors, _ -> {});
 	}
 
+    /**
+     * Breadth first search with visitor
+     * @param <V> The type of the graph's nodes
+     * @param root the starting node for the search
+     * @param neighbors yields the set of neighbors for any vertex
+     * @param visit is applied to each new vertex as it is discovered 
+     * @return a map that maps each reachable vertex to its predecessor      
+     */
 	public static <V> Map<V, V> bfs(V root, Function<V, Set<V>> neighbors, Consumer<V> visit) {
 		var parents = new HashMap<V, V>();
 		Queue<V> q = new LinkedList<V>();
@@ -45,10 +59,15 @@ public class Graphs { // TODO GraphUtil
 		return parents;
 	}
 	
-
+    /**
+     * Depth first search
+     * @param <V> The type of the graph's nodes
+     * @param root the starting node for the search
+     * @param neighbors yields the set of neighbors for any vertex 
+     * @return a map that maps each reachable vertex to its predecessor      
+     */
 	public static <V> Map<V, V> dfs(V root, Function<V, Set<V>> neighbors) {
-		return dfs(root, neighbors, __ -> {
-		});
+		return dfs(root, neighbors, _ -> {});
 	}
 
 	private static <V> void dfsVisit(V v, Function<V, Set<V>> neighbors, Consumer<V> visit, Map<V, V> parents,
@@ -64,6 +83,14 @@ public class Graphs { // TODO GraphUtil
 		visit.accept(v); // visit when finished
 	}
 
+    /**
+     * Depth first search with visitor
+     * @param <V> The type of the graph's nodes
+     * @param root the starting node for the search
+     * @param neighbors yields the set of neighbors for any vertex
+     * @param visit is applied to each new vertex as it is discovered 
+     * @return a map that maps each reachable vertex to its predecessor      
+     */
 	public static <V> Map<V, V> dfs(V root, Function<V, Set<V>> neighbors, Consumer<V> visit) {
 		var parents = new LinkedHashMap<V, V>();
 		var discovered = new HashSet<V>();
@@ -71,6 +98,13 @@ public class Graphs { // TODO GraphUtil
 		return parents;
 	}
 	
+    /**
+     * Topological sort of a directed graph
+     * @param <V> The type of the graph's nodes
+     * @param root the starting node for the sort
+     * @param neighbors yields the set of neighbors for any vertex
+     * @return a map that maps each reachable vertex to its predecessor      
+     */
 	public static <V> List<V> topologicalSort(V root, Function<V, Set<V>> neighbors) {
 		var sorted = new ArrayList<V>();
 		dfs(root, neighbors, sorted::add);
@@ -100,6 +134,7 @@ public class Graphs { // TODO GraphUtil
 		}
 		return result;
 	}
+	
 	// TODO or maybe Set<List<V>>
 	// TODO In Digraph, as Set<List<E>>
 	public static <V> List<List<V>> simplePaths(V from, V to, Function<V, Set<V>> neighbors) {
