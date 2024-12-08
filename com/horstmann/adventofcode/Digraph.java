@@ -33,7 +33,7 @@ public class Digraph<V, E> {
 	}
 
 	public Optional<Edge<V, E>> edge(V from, V to) {
-		return outgoing.computeIfAbsent(from, __ -> Collections.emptySet()).stream().filter(e -> e.to.equals(to))
+		return outgoing.computeIfAbsent(from, _ -> Collections.emptySet()).stream().filter(e -> e.to.equals(to))
 				.findFirst();
 	}
 	

@@ -2,10 +2,6 @@ import com.horstmann.adventofcode.*;
 import com.horstmann.adventofcode.CharGrid.*;
 import static com.horstmann.adventofcode.CharGrid.Direction.*;
 
-import java.io.IO;
-import java.io.IOException;
-import java.nio.file.Path;
-
 CharGrid grid;
 
 void parse(Path p) throws IOException {
