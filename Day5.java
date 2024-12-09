@@ -1,6 +1,4 @@
-import java.io.IO;
-import java.io.IOException;
-import java.nio.file.Path;
+import com.horstmann.adventofcode.*;
 
 record Rule(int before, int after) {}
 
@@ -14,7 +12,7 @@ void parse(Path path) throws IOException {
     for (var line : Files.readAllLines(path)) {
         if (line.length() == 0) first = false;
         else {
-            List<Integer> parts = Stream.of(line.split("[|,]")).map(Integer::parseInt).toList();
+            List<Integer> parts = Util.parseIntegers(line, "[|,]");
             if (first) rules.add(new Rule(parts.get(0), parts.get(1)));
             else updates.add(parts);
         }
@@ -36,8 +34,6 @@ boolean inOrder(List<Integer> pages) {
     return true;
 }
 
-int middle(List<Integer> is) { return is.get(is.size() / 2); }
-
 boolean checkTransitive(List<Integer> is) {
     for (var a : is)
         for (var b : is)
@@ -47,7 +43,7 @@ boolean checkTransitive(List<Integer> is) {
 }
 
 Object part1() throws IOException {
-    return updates.stream().filter(this::inOrder).mapToInt(this::middle).sum();
+    return updates.stream().filter(this::inOrder).mapToInt(Util::middle1).sum();
 }
 
 Object part2() throws IOException {
@@ -57,21 +53,19 @@ Object part2() throws IOException {
         // https://horstmann.com/unblog/2022-07-25/index.html
         if (!checkTransitive(u)) IO.println(u); // Never happened for my input
         if (!inOrder(u)) {
-            u = u.stream().sorted((p, q) -> p == q ?  0 : inOrder(p, q) ? -1 : 1).toList();
-            sum += middle(u); 
+            u = u.stream().sorted(Util.comparatorFromOrder(this::inOrder)).toList();
+            sum += Util.middle1(u); 
         }
     }
     return sum;
 }
 
-Path path(String suffix) { return Path.of("inputs/input" + Integer.parseInt(getClass().getName().replaceAll("\\D", "")) + suffix); }
-
 void main() throws IOException {
     long start = System.nanoTime();
-    parse(path("a"));
+    parse(Util.inputPath("a"));
     IO.println(part1());
     IO.println(part2());
-    parse(path("z"));
+    parse(Util.inputPath("z"));
     IO.println(part1());
     IO.println(part2());
     IO.println("%.3f sec".formatted((System.nanoTime() - start) / 1E9));

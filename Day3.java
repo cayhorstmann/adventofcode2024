@@ -1,3 +1,5 @@
+import com.horstmann.adventofcode.*;
+
 String input;
 
 void parse(Path path) throws IOException {
@@ -26,15 +28,13 @@ Object part2() {
     return s;
 }
 
-Path path(String suffix) { return Path.of("inputs/input" + Integer.parseInt(getClass().getName().replaceAll("\\D", "")) + suffix); }
-
 void main() throws IOException {
     long start = System.nanoTime();
-    parse(path("a"));
+    parse(Util.inputPath("a"));
     IO.println(part1());
-    parse(path("b"));
+    parse(Util.inputPath("b"));
     IO.println(part2());
-    parse(path("z"));
+    parse(Util.inputPath("z"));
     IO.println(part1());
     IO.println(part2());
     IO.println("%.3f sec".formatted((System.nanoTime() - start) / 1E9));

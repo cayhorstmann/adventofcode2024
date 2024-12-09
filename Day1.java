@@ -1,4 +1,4 @@
-import java.nio.file.Path;
+import com.horstmann.adventofcode.*;
 
 List<Integer> left = new ArrayList<>();
 List<Integer> right = new ArrayList<>();
@@ -29,14 +29,12 @@ Object part2() {
     return sum;
 }
 
-Path path(String suffix) { return Path.of("inputs/input" + Integer.parseInt(getClass().getName().replaceAll("\\D", "")) + suffix); }
-
 void main() throws IOException {
     long start = System.nanoTime();
-    parse(path("a"));
+    parse(Util.inputPath("a"));
     IO.println(part1());
     IO.println(part2());
-    parse(path("z"));
+    parse(Util.inputPath("z"));
     IO.println(part1());
     IO.println(part2());
     IO.println("%.3f sec".formatted((System.nanoTime() - start) / 1E9));

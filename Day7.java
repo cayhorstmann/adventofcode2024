@@ -1,7 +1,9 @@
+import com.horstmann.adventofcode.*;
+
 record Equation(long result, List<Long> operands) {
     static Equation parse(String line) {
-        List<Long> parts = Stream.of(line.split(":? ")).map(Long::parseLong).toList();
-        return new Equation(parts.get(0), parts.subList(1, parts.size()));
+        List<Long> parts = Util.parseLongs(line, ":? ");
+        return new Equation(parts.get(0), Util.allButFirst(parts));
     }
     
     boolean hasSolution(List<LongBinaryOperator> operators) { return hasSolution(operands.get(0), 1, operators); }
@@ -31,14 +33,12 @@ Object part2() {
     return equations.stream().filter(e -> e.hasSolution(List.of(PLUS, TIMES, CONCAT))).mapToLong(Equation::result).sum();
 }
 
-Path path(String suffix) { return Path.of("inputs/input" + Integer.parseInt(getClass().getName().replaceAll("\\D", "")) + suffix); }
-
 void main() throws IOException {
     long start = System.nanoTime();
-    parse(path("a"));
+    parse(Util.inputPath("a"));
     IO.println(part1());
     IO.println(part2());
-    parse(path("z"));
+    parse(Util.inputPath("z"));
     IO.println(part1());
     IO.println(part2());
     IO.println("%.3f sec".formatted((System.nanoTime() - start) / 1E9));

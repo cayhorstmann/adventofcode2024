@@ -1,12 +1,8 @@
-import java.io.IO;
-import java.nio.file.Path;
+import com.horstmann.adventofcode.*;
 
 record Level(List<Integer> values) {
     static Level parse(String line) {
-        var vs = new ArrayList<Integer>();
-        for (var s : line.split("\\s+"))
-            vs.add(Integer.parseInt(s));
-        return new Level(vs);
+        return new Level(Util.parseIntegers(line, "\\s+"));
     }
 
     boolean diffOk(int i, int j, int direction /* ±1 */) {
@@ -58,14 +54,12 @@ Object part2() {
     return levels.stream().filter(Level::isAlmostSafe).count();
 }
 
-Path path(String suffix) { return Path.of("inputs/input" + Integer.parseInt(getClass().getName().replaceAll("\\D", "")) + suffix); }
-
 void main() throws IOException {
     long start = System.nanoTime();
-    parse(path("a"));
+    parse(Util.inputPath("a"));
     IO.println(part1());
     IO.println(part2());
-    parse(path("z"));
+    parse(Util.inputPath("z"));
     IO.println(part1());
     IO.println(part2());
     IO.println("%.3f sec".formatted((System.nanoTime() - start) / 1E9));

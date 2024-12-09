@@ -11,13 +11,12 @@
  *  practice dfs which will surely be necessary later.
  */
 
-import static com.horstmann.adventofcode.Graphs.*;
-import static java.util.stream.Collectors.*;
+import com.horstmann.adventofcode.*;
 
 record Equation(long result, List<Long> operands) {
     static Equation parse(String line) {
-        List<Long> parts = Stream.of(line.split(":? ")).map(Long::parseLong).toList();
-        return new Equation(parts.get(0), parts.subList(1, parts.size()));
+        List<Long> parts = Util.parseLongs(line, ":? ");
+        return new Equation(parts.get(0), Util.allButFirst(parts));
     }
 
     Set<Equation> neighbors(List<BiFunction<Long, Long, Optional<Long>>> operators) {
@@ -25,12 +24,12 @@ record Equation(long result, List<Long> operands) {
         else return operators.stream()
             .map(op -> op.apply(result, operands.getLast()))
             .filter(Optional::isPresent)
-            .map(r -> new Equation(r.get(), operands.subList(0, operands.size() - 1)))
-            .collect(toSet());
+            .map(r -> new Equation(r.get(), Util.allButLast(operands)))
+            .collect(Collectors.toSet());
     }
     
     boolean hasSolution(List<BiFunction<Long, Long, Optional<Long>>> operators) {
-        return dfs(this, e -> e.neighbors(operators))
+        return Graphs.dfs(this, e -> e.neighbors(operators))
                 .keySet().stream().anyMatch(e -> e.operands.size() == 1 && e.result == e.operands().getFirst());
     }
 }
@@ -56,14 +55,12 @@ Object part2() {
     return equations.stream().filter(e -> e.hasSolution(List.of(MINUS, DIV, DECAT))).mapToLong(Equation::result).sum();
 }
 
-Path path(String suffix) { return Path.of("inputs/input" + Integer.parseInt(getClass().getName().replaceAll("\\D", "")) + suffix); }
-
 void main() throws IOException {
     long start = System.nanoTime();
-    parse(path("a"));
+    parse(Util.inputPath("a"));
     IO.println(part1());
     IO.println(part2());
-    parse(path("z"));
+    parse(Util.inputPath("z"));
     IO.println(part1());
     IO.println(part2());
     IO.println("%.3f sec".formatted((System.nanoTime() - start) / 1E9));

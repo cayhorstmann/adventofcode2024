@@ -1,6 +1,5 @@
 import com.horstmann.adventofcode.*;
-import com.horstmann.adventofcode.CharGrid.*;
-import static com.horstmann.adventofcode.CharGrid.Direction.*;
+import static com.horstmann.adventofcode.Direction.*;
 
 CharGrid grid;
 
@@ -13,11 +12,11 @@ Set<Location> escape() {
     record Arrow(Location l, Direction d) {}
     var arrows = new HashSet<Arrow>();
     
-    var p = grid.find('^');
+    var p = grid.findFirst('^');
     var d = N;
     arrows.add(new Arrow(p, d));
     for (;;) {
-        var next = p.next(d);
+        var next = p.moved(d);
         var c = grid.get(next); 
         if (c == null) {
             return locations;            
@@ -50,14 +49,12 @@ Object part2() {
     return count;
 }
 
-Path path(String suffix) { return Path.of("inputs/input" + Integer.parseInt(getClass().getName().replaceAll("\\D", "")) + suffix); }
-
 void main() throws IOException {
     long start = System.nanoTime();
-    parse(path("a"));
+    parse(Util.inputPath("a"));
     IO.println(part1());
     IO.println(part2());
-    parse(path("z"));
+    parse(Util.inputPath("z"));
     IO.println(part1());
     IO.println(part2());
     IO.println("%.3f sec".formatted((System.nanoTime() - start) / 1E9));
