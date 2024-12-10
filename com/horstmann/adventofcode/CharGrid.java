@@ -110,7 +110,13 @@ public class CharGrid {
 	public Location findFirst(char c) {
 	    return locations().filter(p -> grid[p.row()][p.col()] == c).findFirst().orElse(null);
 	}
-	
+
+	public Stream<Location> findAll(char c) {
+	    return locations().filter(p -> grid[p.row()][p.col()] == c);	    
+    }
+	    
+	    
+
 	public String toString() {
 	    var result = new StringBuilder();
         for (int i = 0; i < rows(); i++) {

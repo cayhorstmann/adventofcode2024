@@ -1,8 +1,8 @@
 import com.horstmann.adventofcode.*;
 
 CharGrid grid;
-long sum1 = 0;
-long sum2 = 0;
+long sum1;
+long sum2;
 
 void parse(Path p) throws IOException {
     grid = CharGrid.parse(p);
@@ -11,12 +11,12 @@ void parse(Path p) throws IOException {
 }
 
 Set<Location> neighbors(Location l) {
-    return grid.mainNeighbors(l).stream().filter(n -> grid.get(n) == grid.get(l)).collect(Collectors.toSet());
+    return grid.mainNeighbors(l).stream().filter(p -> grid.get(p) == grid.get(l) + 1).collect(Collectors.toSet());
 }
 
 Object part1() {
-    var zeroes = grid.locations().filter(l -> grid.get(l) == '0').toList();
-    var nines = grid.locations().filter(l -> grid.get(l) == '9').toList();
+    var zeroes = grid.findAll('0').toList();
+    var nines = grid.findAll('9').toList();
     for (var start : zeroes)
         for (var end : nines) {
             int count = Graphs.simplePaths(start, end, this::neighbors).size();

@@ -1,9 +1,11 @@
 package com.horstmann.adventofcode;
 
+import java.io.IO;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.BiPredicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Util {
@@ -42,4 +44,10 @@ public class Util {
      * tail of list, all but last of list (day 7)
      * 
      */
+    
+    
+    public static void log(Object...objects) {
+        IO.println(Stream.of(objects).map(Object::toString).collect(Collectors.joining(" ")));
+    }
+    
 }
