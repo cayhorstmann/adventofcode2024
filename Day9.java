@@ -59,8 +59,10 @@ Object part1() {
                     filled = true;
                 }
                 b--;
-                if (b == f) return sum;
-                else {
+                if (b == f) {
+                    filled = true; 
+                    backLength = 0;
+                } else {
                     back = blocks.get(b);
                     backLength = back.length;
                 }

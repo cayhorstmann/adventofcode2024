@@ -3,8 +3,11 @@ package com.horstmann.adventofcode;
 import java.io.IO;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiPredicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -45,9 +48,42 @@ public class Util {
      * 
      */
     
-    
+    public static boolean logging = true;
     public static void log(Object...objects) {
-        IO.println(Stream.of(objects).map(Object::toString).collect(Collectors.joining(" ")));
+        if (logging)
+            IO.println(Stream.of(objects).map(Object::toString).collect(Collectors.joining(" ")));
     }
     
+    private static HashMap<List<?>, Object> memo = new HashMap<>();
+    
+    /**
+     * @param <A> The argument type
+     * @param <R> The return type
+     * @param memo a map that you must allocate for holding the memoized results
+     * @param s the lambda with the code of the function, e.g.
+     * long fib(long n) { return Util.memoize(() -> n <= 1 ? 1 : fib(n - 1) + fib(n - 2), n); }
+     * Just write the function without memoization, then add Util.memoize(() -> { ... }, arg1, arg2, ...)
+     * @param args the arguments
+     * CAUTION: If you memoize more than one function, add a unique key as the initial arg 
+     * @return the result of s
+     */
+    public static <R> R memoize(Supplier<R> s, Object...args) {
+        List<?> a = List.of(args);
+        @SuppressWarnings("unchecked") R r = (R) memo.get(a);
+        if (r == null) {
+            r = s.get();    
+            memo.put(a, r);
+        }
+        return r;
+    }
+    
+    /*
+    public interface Task<E> {
+        void run() throws E;
+    }
+    public void time(Task<?> t) {
+        
+        
+    }
+    */
 }

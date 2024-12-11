@@ -13,6 +13,9 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.ToIntBiFunction;
@@ -38,25 +41,38 @@ public class Graphs {
      * @return a map that maps each reachable vertex to its predecessor      
      */
 	public static <V> Map<V, V> bfs(V root, Function<V, Set<V>> neighbors, Consumer<V> visit) {
-		var parents = new HashMap<V, V>();
-		Queue<V> q = new LinkedList<V>();
+		var parents = new LinkedHashMap<V, V>();
 		Set<V> discovered = new HashSet<V>();
-		q.add(root);
-		discovered.add(root);
-		visit.accept(root);
-		while (!q.isEmpty()) {
-			V v = q.remove();
-			var ns = neighbors.apply(v);
-			for (V n : ns) {
-				if (!discovered.contains(n)) {
-					q.add(n);
-					discovered.add(n);
-					visit.accept(n); // visits on discovery
-					parents.put(n, v);
-				}
-			}
-		}
+		bfs(root, neighbors, (v, p) -> {
+		    if (discovered.add(v)) {
+                parents.put(v, p);
+                visit.accept(v);
+                return true;
+		    } else 
+		        return false;
+		});
 		return parents;
+	}
+	
+    /**
+     * Breadth first search with filter
+     * @param <V> The type of the graph's nodes
+     * @param root the starting node for the search
+     * @param neighbors yields the set of neighbors for any vertex
+     * @param filter receives each node and parent (but not the root), and returns true if the node should be visited
+     * (Note: If you don't want to revisit already visited nodes, you need to filter them out.)
+     */
+	public static <V> void bfs(V root, Function<V, Set<V>> neighbors, BiPredicate<V, V> filter) {
+        Queue<V> q = new LinkedList<V>();
+	    q.add(root);
+	    while (!q.isEmpty()) {
+	        V p = q.remove();
+	        for (V n : neighbors.apply(p)) {
+	            if (filter.test(n, p)) {
+	                q.add(n);
+	            }
+	        }
+	    }
 	}
 	
     /**
@@ -70,33 +86,47 @@ public class Graphs {
 		return dfs(root, neighbors, _ -> {});
 	}
 
-	private static <V> void dfsVisit(V v, Function<V, Set<V>> neighbors, Consumer<V> visit, Map<V, V> parents,
-			Set<V> discovered) {
-		discovered.add(v);
-		var ns = neighbors.apply(v);
-		for (V n : ns) {
-			if (!discovered.contains(n)) {
-				parents.put(n, v);
-				dfsVisit(n, neighbors, visit, parents, discovered);
-			}
-		}
-		visit.accept(v); // visit when finished
-	}
-
     /**
      * Depth first search with visitor
      * @param <V> The type of the graph's nodes
      * @param root the starting node for the search
      * @param neighbors yields the set of neighbors for any vertex
-     * @param visit is applied to each new vertex as it is discovered 
+     * @param finished is applied to each vertex after all descendants have been visited
      * @return a map that maps each reachable vertex to its predecessor      
      */
-	public static <V> Map<V, V> dfs(V root, Function<V, Set<V>> neighbors, Consumer<V> visit) {
+	public static <V> Map<V, V> dfs(V root, Function<V, Set<V>> neighbors, Consumer<V> finished) {
 		var parents = new LinkedHashMap<V, V>();
 		var discovered = new HashSet<V>();
-		dfsVisit(root, neighbors, visit, parents, discovered);
+		discovered.add(root);
+		dfs(root, neighbors, (v, p) -> {
+		   if (discovered.add(v)) {
+		       parents.put(v, p);
+		       return true;
+		   } else {
+		       return false;
+		   }
+		}, finished);
 		return parents;
 	}
+	
+    /**
+     * Depth first search with filter and visitor
+     * @param <V> The type of the graph's nodes
+     * @param root the starting node for the search
+     * @param neighbors yields the set of neighbors for any vertex
+     * @param filter receives each neighbor node and parent (but not the root), and returns true if the node should be visited
+     * @param finished is applied to each vertex after all descendants have been visited
+     * (Note: If you don't want to revisit already visited nodes, you need to filter them out.)
+     */
+	public static <V> void dfs(V root, Function<V, Set<V>> neighbors, BiPredicate<V, V> filter, Consumer<V> finished) {
+	    for (V n : neighbors.apply(root)) {
+	        if (filter.test(n, root)) {
+	            dfs(n, neighbors, filter, finished);
+	        }
+	    }
+        finished.accept(root); 
+	}
+	
 	
     /**
      * Topological sort of a directed graph
@@ -176,6 +206,21 @@ public class Graphs {
 		}
 		return dist;
 	}
+	
+    public static <V> String dot(V root, Function<V, Set<V>> neighbors, BiFunction<V, V, Object> edgeLabels) {
+        var builder = new StringBuilder();
+        builder.append("digraph {\n");
+        for (var entry : dfs(root, neighbors).entrySet()) {
+            var to = entry.getKey();
+            var from = entry.getValue();
+            var label = edgeLabels.apply(from, to);
+            builder.append("   \"%s\" -> \"%s\"".formatted(from, to));
+            if (label != null) builder.append("[label=\"%s\"]".formatted(label));
+            builder.append("\n");
+        }  
+        builder.append("}\n");
+        return builder.toString();
+    }
 }
 
 
