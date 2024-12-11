@@ -77,13 +77,13 @@ public class Util {
         return r;
     }
     
-    /*
-    public interface Task<E> {
+    public interface Task<E extends Throwable> {
         void run() throws E;
     }
-    public void time(Task<?> t) {
-        
-        
+    
+    public static <E extends Throwable> void time(Task<E> t) throws E {
+        long start = System.nanoTime();
+        t.run();
+        IO.println("%.3f sec".formatted((System.nanoTime() - start) / 1E9));
     }
-    */
 }
