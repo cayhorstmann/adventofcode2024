@@ -1,5 +1,3 @@
-import java.io.IO;
-
 import com.horstmann.adventofcode.*;
 
 void parse(Path p) throws IOException {
