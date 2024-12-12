@@ -43,6 +43,7 @@ public class Graphs {
 	public static <V> Map<V, V> bfs(V root, Function<V, Set<V>> neighbors, Consumer<V> visit) {
 		var parents = new LinkedHashMap<V, V>();
 		Set<V> discovered = new HashSet<V>();
+		parents.put(root, null); // TODO document, also dfs
 		bfs(root, neighbors, (v, p) -> {
 		    if (discovered.add(v)) {
                 parents.put(v, p);
@@ -206,6 +207,20 @@ public class Graphs {
 		}
 		return dist;
 	}
+	
+	public static <V> Set<Set<V>> connectedComponents(Collection<V> vertices, Function<V, Set<V>> neighbors) {
+	    var visited = new ArrayList<V>();
+	    var components = new HashSet<Set<V>>();
+	    for (var v : vertices) {
+	        if (!visited.contains(v)) {
+	            var c = Graphs.bfs(v, neighbors).keySet(); 
+	            visited.addAll(c);
+	            components.add(c);
+	        }   
+	    }
+	    return components;
+    }
+
 	
     public static <V> String dot(V root, Function<V, Set<V>> neighbors, BiFunction<V, V, Object> edgeLabels) {
         var builder = new StringBuilder();

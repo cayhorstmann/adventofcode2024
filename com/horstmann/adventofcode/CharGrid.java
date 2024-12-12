@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class CharGrid {
@@ -13,9 +14,6 @@ public class CharGrid {
 
 	private CharGrid() {}
 	
-	public static final List<Direction> MAIN_DIRECTIONS = List.of(Direction.N, Direction.W, Direction.S, Direction.E); 
-    public static final List<Direction> ALL_DIRECTIONS = List.of(Direction.values()); 
-
 	public static CharGrid parse(Path p) throws IOException {
 	    var result = new CharGrid();
         result.grid = Files.lines(p).map(String::toCharArray).toArray(char[][]::new);
@@ -54,9 +52,19 @@ public class CharGrid {
 
     public Set<Location> mainNeighbors(Location p) {
         var r = new HashSet<Location>();
-        for (var d : MAIN_DIRECTIONS) {
+        for (var d : Direction.MAIN_DIRECTIONS) {
             Location n = p.moved(d);
             if (isValid(n))
+                r.add(n);
+        }
+        return r;
+    }
+
+    public Set<Location> sameNeighbors(Location p) { // for floodfill
+        var r = new HashSet<Location>();
+        for (var d : Direction.MAIN_DIRECTIONS) {
+            Location n = p.moved(d);
+            if (isValid(n) && get(p) == get(n))
                 r.add(n);
         }
         return r;
@@ -74,7 +82,7 @@ public class CharGrid {
 
     public Set<Direction> mainNeighborDirections(Location p) {
         var r = new HashSet<Direction>();
-        for (var d : MAIN_DIRECTIONS) {
+        for (var d : Direction.MAIN_DIRECTIONS) {
             Location n = p.moved(d);
             if (isValid(n))
                 r.add(d);

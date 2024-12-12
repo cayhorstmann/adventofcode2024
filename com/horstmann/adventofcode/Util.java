@@ -2,6 +2,7 @@ package com.horstmann.adventofcode;
 
 import java.io.IO;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -49,11 +50,29 @@ public class Util {
      */
     
     public static boolean logging = true;
-    public static void log(Object...objects) {
+    public static void log(Object... objects) {
         if (logging)
-            IO.println(Stream.of(objects).map(Object::toString).collect(Collectors.joining(" ")));
+            IO.println(Stream.of(objects).map(Util::format).collect(Collectors.joining(" ")));
     }
     
+    private static final int MARGIN = 80;
+    public static String format(Object object) {
+        var s = object.toString();
+        return switch(object) {
+            case Collection<?> values ->
+                s.length() <= MARGIN ? s 
+                        : "[\n " + Stream.of(values).map(Util::format).collect(Collectors.joining(",\n ")) + "]";                                
+            case Map<?, ?> values ->
+                s.length() <= MARGIN ? s 
+                    : "{\n " + Stream.of(values.entrySet()).map(Util::format).collect(Collectors.joining(",\n ")) + "}";                                
+            case Map.Entry<?, ?> e -> 
+               s.length() <= MARGIN ? s 
+                    : Util.format(e.getKey()) + "\n=" + Util.format(e.getValue());
+            case null -> "null";
+            default -> s;
+        };
+    }
+
     private static HashMap<List<?>, Object> memo = new HashMap<>();
     
     /**
