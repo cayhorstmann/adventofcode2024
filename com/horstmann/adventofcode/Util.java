@@ -28,11 +28,11 @@ public class Util {
     }
     
     public static List<Integer> parseIntegers(String line, String separatorRegex) { 
-        return Stream.of(line.split(separatorRegex)).map(Integer::parseInt).toList();
+        return Stream.of(line.split(separatorRegex)).filter(l -> l.length() > 0).map(Integer::parseInt).toList();
     }
     
     public static List<Long> parseLongs(String line, String separatorRegex) { 
-        return Stream.of(line.split(separatorRegex)).map(Long::parseLong).toList();
+        return Stream.of(line.split(separatorRegex)).filter(l -> l.length() > 0).map(Long::parseLong).toList();
     }
         
     public static Path inputPath(String suffix) { 
