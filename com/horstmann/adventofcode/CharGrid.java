@@ -14,10 +14,23 @@ public class CharGrid {
 
 	private CharGrid() {}
 	
+	public CharGrid(int rows, int cols, char c) {
+	    grid = new char[rows][cols];
+	    for (int i = 0; i < rows; i++)
+	        for (int j = 0; j < cols; j++)
+	            grid[i][j] = c;
+	}
+	
 	public static CharGrid parse(Path p) throws IOException {
 	    var result = new CharGrid();
         result.grid = Files.lines(p).map(String::toCharArray).toArray(char[][]::new);
 	    return result;
+    }
+
+	public static CharGrid parse(List<String> lines) throws IOException {
+        var result = new CharGrid();
+        result.grid = lines.stream().map(String::toCharArray).toArray(char[][]::new);
+        return result;
     }
 
     public Character get(Location p) {

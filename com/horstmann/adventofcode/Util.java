@@ -26,10 +26,14 @@ public class Util {
     public static <T> Comparator<T> comparatorFromOrder(BiPredicate<T, T> order) {
         return (x, y) -> x.equals(y) ? 0 : order.test(x,  y) ? -1 : 1;        
     }
-    
+
+    public static List<Integer> parseIntegers(String line) { return parseIntegers(line, "[^0-9+-]"); }
+
     public static List<Integer> parseIntegers(String line, String separatorRegex) { 
         return Stream.of(line.split(separatorRegex)).filter(l -> l.length() > 0).map(Integer::parseInt).toList();
     }
+
+    public static List<Long> parseLongs(String line) { return parseLongs(line, "[^0-9+-]"); }
     
     public static List<Long> parseLongs(String line, String separatorRegex) { 
         return Stream.of(line.split(separatorRegex)).filter(l -> l.length() > 0).map(Long::parseLong).toList();
@@ -104,5 +108,20 @@ public class Util {
         long start = System.nanoTime();
         t.run();
         IO.println("%.3f sec".formatted((System.nanoTime() - start) / 1E9));
+    }
+    
+    public static long gcd(long a, long b) {
+        a = Math.abs(a);
+        b = Math.abs(b);
+        while (b != 0) {
+            var temp = b;
+            b = a % b;
+            a = temp;
+        }
+        return a;
+    }
+    
+    public static long lcm(long a, long b) {
+        return a * b / gcd(a, b);
     }
 }
