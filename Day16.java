@@ -11,11 +11,9 @@ record Position(Location loc, Direction dir) {
         if (q.loc == loc) {
             int t = dir.turnsTo(q.dir);
             if (t == 2 || t == 6) return 1000;
-            throw new IllegalArgumentException("" + this + " " + q);
         } else if (q.loc.equals(loc.moved(dir)) && q.dir == dir)
             return 1;
-        else
-            throw new IllegalArgumentException("" + this + " " + q + " " + q.loc + " " + loc.moved(dir) + (q.loc == loc.moved(dir)));
+        throw new IllegalArgumentException("Should not need cost from " + this + " to " + q);
     }
     Set<Position> next() {
         var result = new HashSet<Position>();
