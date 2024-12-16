@@ -15,18 +15,22 @@ public enum Direction {
     public static final List<Direction> MAIN_DIRECTIONS = List.of(Direction.N, Direction.W, Direction.S, Direction.E); 
     public static final List<Direction> DIAGONALS = List.of(Direction.NE, Direction.SE, Direction.SW, Direction.NW); 
     
-    private int[] dxy;
+    private int[] drc;
 
-    Direction(int dx, int dy) {
-        dxy = new int[] { dx, dy };
+    Direction(int dr, int dc) {
+        drc = new int[] { dr, dc };
     }
     
-    public int[] dxy() {
-        return dxy;
+    public int[] drc() {
+        return drc;
     }
     
     public Direction turn(int eightsClockwise) {
         return Direction.values()[Math.floorMod(ordinal() + eightsClockwise, 8)];
+    }
+    
+    public int turnsTo(Direction other) {
+        return Math.floorMod(other.ordinal() - ordinal(), 8);
     }
 }
 

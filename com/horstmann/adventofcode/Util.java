@@ -5,8 +5,10 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -123,5 +125,26 @@ public class Util {
     
     public static long lcm(long a, long b) {
         return a * b / gcd(a, b);
+    }
+    
+    public static <T> Set<T> union(Set<? extends T> a, Set<? extends T> b) {
+        var result = new HashSet<T>();
+        result.addAll(a);
+        result.addAll(b);
+        return result;
+    }
+    
+    public static <T> Set<T> intersection(Set<? extends T> a, Set<? extends T> b) {
+        var result = new HashSet<T>();
+        result.addAll(a);
+        result.retainAll(b);
+        return result;
+    }
+
+    public static <T> Set<T> difference(Set<? extends T> a, Set<? extends T> b) {
+        var result = new HashSet<T>();
+        result.addAll(a);
+        result.removeAll(b);
+        return result;
     }
 }

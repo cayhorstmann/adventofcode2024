@@ -1,13 +1,13 @@
 package com.horstmann.adventofcode;
 
-public record Location(int row, int col) {
+public record Location(int row, int col) implements Comparable<Location> {
     public Location moved(Direction d) {
-        int[] dxy = d.dxy();
-        return movedBy(dxy[0], dxy[1]);
+        int[] drc = d.drc();
+        return movedBy(drc[0], drc[1]);
     }
     
-    public Location movedBy(int dx, int dy) {
-        return new Location(row + dx, col + dy);
+    public Location movedBy(int dr, int dc) {
+        return new Location(row + dr, col + dc);
     }
 
     public Direction to(Location p) {
@@ -19,5 +19,11 @@ public record Location(int row, int col) {
 
     public String toString() {
         return row + "," + col;
+    }
+    
+    public int compareTo(Location other) {
+        int dr = row - other.row();
+        if (dr != 0) return dr;
+        else return col - other.col();
     }
 }

@@ -38,7 +38,7 @@ public class Graphs {
      * @param root the starting node for the search
      * @param neighbors yields the set of neighbors for any vertex
      * @param visit is applied to each new vertex as it is discovered 
-     * @return a map that maps each reachable vertex to its predecessor      
+     * @return a map that maps each reachable vertex to its predecessor. The root is mapped to null.      
      */
 	public static <V> Map<V, V> bfs(V root, Function<V, Set<V>> neighbors, Consumer<V> visit) {
 		var parents = new LinkedHashMap<V, V>();
