@@ -70,7 +70,6 @@ void main() throws IOException {
         parse(Util.inputPath("b"));
         IO.println(part1());
         IO.println(part2());
-        Util.logging = false;
         parse(Util.inputPath("z"));    
         IO.println(part1());
         IO.println(part2());

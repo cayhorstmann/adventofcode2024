@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
-import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
@@ -43,7 +42,8 @@ public class Graphs {
 	public static <V> Map<V, V> bfs(V root, Function<V, Set<V>> neighbors, Consumer<V> visit) {
 		var parents = new LinkedHashMap<V, V>();
 		Set<V> discovered = new HashSet<V>();
-		parents.put(root, null); // TODO document, also dfs
+		discovered.add(root);
+		parents.put(root, null); // TODO also dfs
 		bfs(root, neighbors, (v, p) -> {
 		    if (discovered.add(v)) {
                 parents.put(v, p);
@@ -74,6 +74,17 @@ public class Graphs {
 	            }
 	        }
 	    }
+	}
+	
+	public static <V> List<V> path(Map<V, V> predecessors, V end) {
+	    var p = new ArrayList<V>();
+	    p.add(end);
+	    var pred = predecessors.get(end); 
+	    while (pred != null) {
+            p.add(pred);
+	        pred = predecessors.get(pred);
+	    }
+	    return p.reversed();
 	}
 	
     /**
@@ -207,6 +218,8 @@ public class Graphs {
 		}
 		return dist;
 	}
+	
+	// TODO yield all paths
 	
 	public static <V> Set<Set<V>> connectedComponents(Collection<V> vertices, Function<V, Set<V>> neighbors) {
 	    var visited = new ArrayList<V>();

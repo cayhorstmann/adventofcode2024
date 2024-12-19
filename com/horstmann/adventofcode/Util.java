@@ -48,38 +48,36 @@ public class Util {
     }
     
     /*
-     * Todo: middle? (day 5)
-     * all pairs? all distinct pairs? All combinations? (day 5, day 8)
-     * make comparator from order relation (day 5)
-     * tail of list, all but last of list (day 7)
-     * 
+     * TODO: all pairs? all distinct pairs? All combinations? (day 5, day 8)
      */
     
     public static boolean logging = true;
+    public static int margin = 100;
+
     public static void log(Object... objects) {
         if (logging)
             IO.println(Stream.of(objects).map(Util::format).collect(Collectors.joining(" ")));
     }
     
-    private static final int MARGIN = 80;
     public static String format(Object object) {
-        var s = object.toString();
+        var s = object == null ? "null" : object.toString();
         return switch(object) {
             case Collection<?> values ->
-                s.length() <= MARGIN ? s 
-                        : "[\n " + Stream.of(values).map(Util::format).collect(Collectors.joining(",\n ")) + "]";                                
+                s.length() <= margin ? s 
+                        : "[\n " + values.stream().map(Util::format).collect(Collectors.joining(",\n ")) + "]";                                
             case Map<?, ?> values ->
-                s.length() <= MARGIN ? s 
-                    : "{\n " + Stream.of(values.entrySet()).map(Util::format).collect(Collectors.joining(",\n ")) + "}";                                
+                s.length() <= margin ? s 
+                    : "{\n " + values.entrySet().stream().map(Util::format).collect(Collectors.joining(",\n ")) + "}";                                
             case Map.Entry<?, ?> e -> 
-               s.length() <= MARGIN ? s 
-                    : Util.format(e.getKey()) + "\n=" + Util.format(e.getValue());
+               s.length() <= margin ? s 
+                    : Util.format(e.getKey()) + "=\n" + Util.format(e.getValue());
             case null -> "null";
             default -> s;
         };
     }
 
     private static HashMap<List<?>, Object> memo = new HashMap<>();
+    public static void resetMemo() { memo = new HashMap<>(); }
     
     /**
      * @param <A> The argument type
@@ -87,9 +85,11 @@ public class Util {
      * @param memo a map that you must allocate for holding the memoized results
      * @param s the lambda with the code of the function, e.g.
      * long fib(long n) { return Util.memoize(() -> n <= 1 ? 1 : fib(n - 1) + fib(n - 2), n); }
-     * Just write the function without memoization, then add Util.memoize(() -> { ... }, arg1, arg2, ...)
+     * Just write the function without memoization, then add 
+     *     return Util.memoize(() -> { ... }, arg1, arg2, ...)
      * @param args the arguments
-     * CAUTION: If you memoize more than one function, add a unique key as the initial arg 
+     * CAUTION: If you memoize more than one function, add a unique key as the initial arg
+     * CAUTION: If the memoized code captures mutable state, reset the memo when the state changes 
      * @return the result of s
      */
     public static <R> R memoize(Supplier<R> s, Object...args) {
@@ -125,6 +125,12 @@ public class Util {
     
     public static long lcm(long a, long b) {
         return a * b / gcd(a, b);
+    }
+    
+    public static long pow2(int n) {
+        long r = 1;
+        for (int i = 1; i <= n; i++) r <<= 1;
+        return r;
     }
     
     public static <T> Set<T> union(Set<? extends T> a, Set<? extends T> b) {

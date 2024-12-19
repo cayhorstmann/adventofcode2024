@@ -9,6 +9,8 @@ public record Location(int row, int col) implements Comparable<Location> {
     public Location movedBy(int dr, int dc) {
         return new Location(row + dr, col + dc);
     }
+    
+    public Location flipped() { return new Location(col, row); }
 
     public Direction to(Location p) {
         for (Direction d : Direction.values())
