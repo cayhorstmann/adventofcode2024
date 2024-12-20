@@ -18,6 +18,10 @@ public record Location(int row, int col) implements Comparable<Location> {
                 return d;
         return null;
     }
+    
+    public int taxicabDistance(Location other) {
+        return Math.abs(row - other.row) + Math.abs(col - other.col);
+    }
 
     public String toString() {
         return row + "," + col;

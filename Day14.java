@@ -1,12 +1,12 @@
 import com.horstmann.adventofcode.*;
 
-static int MAXX;
-static int MAXY;
+int MAXX;
+int MAXY;
 
-record Robot(int sx, int sy, int vx, int vy) {
-    Location move(long t) {
-        return new Location(Math.floorMod(sy + t * vy, MAXY), Math.floorMod(sx + t * vx, MAXX));
-    }    
+record Robot(int sx, int sy, int vx, int vy) {}
+
+Location move(Robot r, long t) {
+    return new Location(Math.floorMod(r.sy + t * r.vy, MAXY), Math.floorMod(r.sx + t * r.vx, MAXX));    
 }
 
 List<Robot> robots;
@@ -38,9 +38,19 @@ void parse(Path path) throws IOException {
 }
 
 
-Object part1() {    
-    var cs = robots.stream().map(r -> r.move(100)).map(this::quadrant).collect(Collectors.groupingBy(s -> s, Collectors.counting()));
-    Util.log(cs);
+Object part1() {
+    if (Util.logging) {
+        var grid = new CharGrid(MAXY, MAXX, ' ');
+        for (var r : robots) {
+            var p = move(r, 100);
+            Util.log(p);
+            grid.put(p, grid.get(p) == ' ' ? '1' : (char)(grid.get(p) + 1));
+        }
+        Util.log(grid);
+    }
+
+    
+    var cs = robots.stream().map(r -> move(r, 100)).map(this::quadrant).collect(Collectors.groupingBy(s -> s, Collectors.counting()));
     return cs.getOrDefault(1, 0L) * cs.getOrDefault(2, 0L) * cs.getOrDefault(3, 0L) * cs.getOrDefault(4, 0L);
 }
 
@@ -53,9 +63,9 @@ boolean hasClump(CharGrid g, int cutoff) {
 
 Object part2() {
     for (int t = 0; t < Util.lcm(MAXX, MAXY); t++) {
-        var grid = new CharGrid(MAXX, MAXY, ' ');
+        var grid = new CharGrid(MAXX, MAXY, ' '); // TODO: Why not MAXY, MAXX?
         for (var r : robots) {
-            var p = r.move(t);
+            var p = move(r, t);
             grid.put(p, '*');
         }
         if (hasClump(grid, 20)) {            

@@ -1,6 +1,5 @@
 package com.horstmann.adventofcode;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -12,12 +11,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.SequencedMap;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.ToIntBiFunction;
+import java.util.stream.Collectors;
 
 public class Graphs {
     /**
@@ -27,7 +28,7 @@ public class Graphs {
      * @param neighbors yields the set of neighbors for any vertex 
      * @return a map that maps each reachable vertex to its predecessor      
      */
-	public static <V> Map<V, V> bfs(V root, Function<V, Set<V>> neighbors) {
+	public static <V> SequencedMap<V, V> bfs(V root, Function<V, Set<V>> neighbors) {
 		return bfs(root, neighbors, _ -> {});
 	}
 
@@ -39,11 +40,11 @@ public class Graphs {
      * @param visit is applied to each new vertex as it is discovered 
      * @return a map that maps each reachable vertex to its predecessor. The root is mapped to null.      
      */
-	public static <V> Map<V, V> bfs(V root, Function<V, Set<V>> neighbors, Consumer<V> visit) {
+	public static <V> SequencedMap<V, V> bfs(V root, Function<V, Set<V>> neighbors, Consumer<V> visit) {
 		var parents = new LinkedHashMap<V, V>();
 		Set<V> discovered = new HashSet<V>();
 		discovered.add(root);
-		parents.put(root, null); // TODO also dfs
+		parents.put(root, null);
 		bfs(root, neighbors, (v, p) -> {
 		    if (discovered.add(v)) {
                 parents.put(v, p);
@@ -86,15 +87,34 @@ public class Graphs {
 	    }
 	    return p.reversed();
 	}
+
+    /**
+     * All paths from the root of a DAG
+     * @param <V> The type of the graph's nodes
+     * @param root the starting node
+     * @param neighbors yields the set of neighbors for any vertex 
+     * @return a set of all maximum length paths      
+     */
+	public static <V> Set<List<V>> dagPaths(V root, Function<V, Set<V>> neighbors) {
+	    var ns = neighbors.apply(root);
+	    if (ns.isEmpty()) return Set.of(List.of(root));
+	    var result = new HashSet<List<V>>();
+	    for (var n : ns) {
+	        for(var p : dagPaths(n, neighbors))
+	            result.add(prepend(root, p));
+       }   
+       return result;
+   }
+
 	
     /**
      * Depth first search
      * @param <V> The type of the graph's nodes
      * @param root the starting node for the search
      * @param neighbors yields the set of neighbors for any vertex 
-     * @return a map that maps each reachable vertex to its predecessor      
+     * @return a map that maps each reachable vertex to its predecessor. The root has predecessor null.      
      */
-	public static <V> Map<V, V> dfs(V root, Function<V, Set<V>> neighbors) {
+	public static <V> SequencedMap<V, V> dfs(V root, Function<V, Set<V>> neighbors) {
 		return dfs(root, neighbors, _ -> {});
 	}
 
@@ -104,12 +124,13 @@ public class Graphs {
      * @param root the starting node for the search
      * @param neighbors yields the set of neighbors for any vertex
      * @param finished is applied to each vertex after all descendants have been visited
-     * @return a map that maps each reachable vertex to its predecessor      
+     * @return a map that maps each reachable vertex to its predecessor. The root has parent null.
      */
-	public static <V> Map<V, V> dfs(V root, Function<V, Set<V>> neighbors, Consumer<V> finished) {
+	private static <V> SequencedMap<V, V> dfs(V root, Function<V, Set<V>> neighbors, Consumer<V> finished) {
 		var parents = new LinkedHashMap<V, V>();
 		var discovered = new HashSet<V>();
 		discovered.add(root);
+		parents.put(root, null);
 		dfs(root, neighbors, (v, p) -> {
 		   if (discovered.add(v)) {
 		       parents.put(v, p);
@@ -130,7 +151,7 @@ public class Graphs {
      * @param finished is applied to each vertex after all descendants have been visited
      * (Note: If you don't want to revisit already visited nodes, you need to filter them out.)
      */
-	public static <V> void dfs(V root, Function<V, Set<V>> neighbors, BiPredicate<V, V> filter, Consumer<V> finished) {
+	private static <V> void dfs(V root, Function<V, Set<V>> neighbors, BiPredicate<V, V> filter, Consumer<V> finished) {
 	    for (V n : neighbors.apply(root)) {
 	        if (filter.test(n, root)) {
 	            dfs(n, neighbors, filter, finished);
@@ -141,11 +162,11 @@ public class Graphs {
 	
 	
     /**
-     * Topological sort of a directed graph
+     * Topological sort of a directed graph.
      * @param <V> The type of the graph's nodes
      * @param root the starting node for the sort
      * @param neighbors yields the set of neighbors for any vertex
-     * @return a map that maps each reachable vertex to its predecessor      
+     * @return a list of nodes so that for i < j, there is a path from the ith element to the jth      
      */
 	public static <V> List<V> topologicalSort(V root, Function<V, Set<V>> neighbors) {
 		var sorted = new ArrayList<V>();
@@ -153,21 +174,30 @@ public class Graphs {
 		return sorted.reversed();
 	}
 
-	// TODO Make Path class?
+	// TODO Make Path class? Keep paths in reverse order and use cons cells?
 	private static <V> List<V> append(List<V> vs, V v) {
 		List<V> result = new ArrayList<V>(vs);
 		result.add(v);
 		return result;
 	}
 
-	private static <V> List<List<V>> simplePathsHelper(V from, V to, Function<V, Set<V>> neighbors, Set<V> avoid, List<List<V>> prefixes) {
+   private static <V> List<V> prepend(V v, List<V> vs) {
+        List<V> result = new ArrayList<V>();
+        result.add(v);
+        result.addAll(vs);
+        return result;
+    }
+
+	
+	private static <V> Set<List<V>> simplePathsHelper(V from, V to, Function<V, Set<V>> neighbors, Set<V> avoid, Set<List<V>> prefixes) {
+	    Util.log(from, to, avoid.size(), prefixes.iterator().next().size());
 		if (from.equals(to)) {
 			return prefixes;
 		}
-		var result = new ArrayList<List<V>>();
+		var result = new HashSet<List<V>>();
 		for (V n : neighbors.apply(from)) {
 			if (!avoid.contains(n)) {
-				var prefixes2 = prefixes.stream().map(p -> append(p, n)).toList();
+				var prefixes2 = prefixes.stream().map(p -> append(p, n)).collect(Collectors.toSet());
 				var avoid2 = new HashSet<V>(avoid);
 				avoid2.add(n);
 				Collection<? extends List<V>> result2 = simplePathsHelper(n, to, neighbors, avoid2, prefixes2);
@@ -177,26 +207,16 @@ public class Graphs {
 		return result;
 	}
 	
-	// TODO or maybe Set<List<V>>
-	// TODO In Digraph, as Set<List<E>>
-	public static <V> List<List<V>> simplePaths(V from, V to, Function<V, Set<V>> neighbors) {
-		return simplePathsHelper(from, to, neighbors, Set.of(from), List.of(List.of(from)));
-	}
+	public static <V> Set<List<V>> simplePaths(V from, V to, Function<V, Set<V>> neighbors) {
+		return simplePathsHelper(from, to, neighbors, Set.of(from), Set.of(List.of(from)));
+	}	
 	
-	
-	// Used Map.Entry because of the seductive comparingByValue, but the
-	// price to pay is the icky new AbstractMap.SimpleImmutableEntry<>
-    // This helper method takes the sting out of it
-	static <K, V> Map.Entry<K, V> entry(K k, V v) {
-		return new AbstractMap.SimpleImmutableEntry<>(k, v);
-	}
-
-	public static <V> Map<V, Integer> dijkstra(V from, Function<V, Set<V>> neighbors, ToIntBiFunction<V, V> neighborDistances) {
+	public static <V> Map<V, Integer> dijkstraCosts(V from, Function<V, Set<V>> neighbors, ToIntBiFunction<V, V> neighborDistances) {
 		Map<V, Integer> dist = new HashMap<>();
 		Set<V> selected = new HashSet<>();
 		PriorityQueue<Map.Entry<V, Integer>> q = new PriorityQueue<>(
 				Map.Entry.<V, Integer>comparingByValue(Comparator.<Integer>naturalOrder()));
-		q.add(entry(from, 0));
+		q.add(Map.entry(from, 0));
 		dist.put(from, 0);
 		while (q.size() > 0) {
 			var e = q.remove();
@@ -209,17 +229,82 @@ public class Graphs {
 					int nd = dist.getOrDefault(n, Integer.MAX_VALUE);
 					int sd = dist.getOrDefault(s, Integer.MAX_VALUE);
 					if (nd > sd + snd) {
-						q.remove(entry(n, nd));
+						q.remove(Map.entry(n, nd));
 						dist.put(n, sd + snd);
-						q.add(entry(n, sd + snd));
+						q.add(Map.entry(n, sd + snd));
 					}
 				}
 			}
 		}
 		return dist;
 	}
-	
-	// TODO yield all paths
+
+    public static <V> Map<V, V> dijkstraPaths(V from, Function<V, Set<V>> neighbors, ToIntBiFunction<V, V> neighborDistances) {
+        Map<V, Integer> dist = new HashMap<>();
+        Map<V, V> predecessors = new HashMap<>();
+        Set<V> selected = new HashSet<>();
+        PriorityQueue<Map.Entry<V, Integer>> q = new PriorityQueue<>(
+                Map.Entry.<V, Integer>comparingByValue(Comparator.<Integer>naturalOrder()));
+        q.add(Map.entry(from, 0));
+        predecessors.put(from, null);
+        dist.put(from, 0);
+        while (q.size() > 0) {
+            var e = q.remove();
+            var s = e.getKey();
+            selected.add(s);
+            // For all unselected neighbors
+            for (var n: neighbors.apply(s)) {
+                if (!selected.contains(n)) {
+                    int snd = neighborDistances.applyAsInt(s,  n);
+                    int nd = dist.getOrDefault(n, Integer.MAX_VALUE);
+                    int sd = dist.getOrDefault(s, Integer.MAX_VALUE);
+                    if (nd > sd + snd) {
+                        q.remove(Map.entry(n, nd));
+                        dist.put(n, sd + snd);
+                        q.add(Map.entry(n, sd + snd));
+                        predecessors.put(n, s);
+                    }
+                }
+            }
+        }
+        return predecessors;
+    }
+    
+    // NOTE: After calling dijkstraAllPaths, call Graphs.dagPaths(target, preds::get) to get all min cost paths to the target
+    
+    public static <V> Map<V, Set<V>> dijkstraAllPaths(V from, Function<V, Set<V>> neighbors, ToIntBiFunction<V, V> neighborDistances) {
+        Map<V, Integer> dist = new HashMap<>();
+        Map<V, Set<V>> predecessors = new HashMap<>();
+        Set<V> selected = new HashSet<>();
+        PriorityQueue<Map.Entry<V, Integer>> q = new PriorityQueue<>(
+                Map.Entry.<V, Integer>comparingByValue(Comparator.<Integer>naturalOrder()));
+        q.add(Map.entry(from, 0));
+        dist.put(from, 0);
+        predecessors.put(from, new HashSet<>());
+        while (q.size() > 0) {
+            var e = q.remove();
+            var s = e.getKey();
+            selected.add(s);
+            // For all unselected neighbors
+            for (var n: neighbors.apply(s)) {
+                if (!selected.contains(n)) {
+                    int snd = neighborDistances.applyAsInt(s,  n);
+                    int nd = dist.getOrDefault(n, Integer.MAX_VALUE);
+                    int sd = dist.getOrDefault(s, Integer.MAX_VALUE);
+                    if (nd > sd + snd) {
+                        q.remove(Map.entry(n, nd));
+                        dist.put(n, sd + snd);
+                        q.add(Map.entry(n, sd + snd));
+                        predecessors.put(n, new HashSet<>(Set.of(s)));
+                    }
+                    else if (nd == sd + snd) {
+                        predecessors.get(n).add(s);
+                    }
+                }
+            }
+        }
+        return predecessors;
+    }
 	
 	public static <V> Set<Set<V>> connectedComponents(Collection<V> vertices, Function<V, Set<V>> neighbors) {
 	    var visited = new ArrayList<V>();

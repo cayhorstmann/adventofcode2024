@@ -42,7 +42,7 @@ Object part1() {
     var start = grid.findFirst('S');
     var end = grid.findFirst('E');
     startPos = new Position(start, Direction.E);
-    costs = Graphs.dijkstra(startPos, Position::next, Position::cost);
+    costs = Graphs.dijkstraCosts(startPos, Position::next, Position::cost);
     mincost = costs.entrySet().stream().filter(e -> e.getKey().loc().equals(end)).mapToInt(e -> e.getValue()).min().orElse(Integer.MAX_VALUE);
     mincostPos = costs.entrySet().stream().filter(e -> e.getKey().loc().equals(end)).filter(e -> e.getValue() == mincost).map(Map.Entry::getKey).toList();
     return mincost;
@@ -50,11 +50,16 @@ Object part1() {
 
 Object part2() {
     var locs = new TreeSet<Location>();
+    var preds = Graphs.dijkstraAllPaths(startPos, Position::next, Position::cost);
     for (var endPos : mincostPos) {
+        /*
+        // Can also be computed from the final costs
         var paths = Graphs.simplePaths(endPos, startPos, 
                 p -> p.previous().stream()
                     .filter(n -> costs.get(p) == n.cost(p) + costs.get(n))
                     .collect(Collectors.toSet()));
+        */
+        var paths = Graphs.dagPaths(endPos, preds::get);
         for (var p : paths)
             for (var pos : p)
                 locs.add(pos.loc());

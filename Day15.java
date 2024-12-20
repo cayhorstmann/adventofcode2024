@@ -1,10 +1,11 @@
+// Look at Day15a for a prettier, but slower, solution without recursion.
+// It uses bfs to identify the set of locations to be moved
+
 import com.horstmann.adventofcode.*;
 
 CharGrid grid;
 CharGrid grid2;
 String moves;
-
-Map<Character, Direction> direction = Map.of('<', Direction.W, '>', Direction.E, '^', Direction.N, 'v', Direction.S);
 
 String widen(String s) {
     return s.chars().mapToObj(c -> switch(c) {
@@ -82,17 +83,17 @@ void doMove(Location p, Direction d) {
 
 int gps(Location loc) { return 100 * loc.row() + loc.col(); }
 
-Location p; // Otherwise can't assign in forEach--don't code like that at home!
+Location robot; // Otherwise can't assign in forEach--don't code like that at home!
 
 Object part1() {    
-    p = grid.findFirst('@');
-    moves.chars().forEach(c -> { p = move(p, direction.get((char) c)); }); // Not so nice that one must cast to char
+    robot = grid.findFirst('@');
+    moves.chars().forEach(c -> { robot = move(robot, Direction.ofSymbol(c)); }); 
     return grid.findAll('O').mapToInt(this::gps).sum();
 }
 
 Object part2() {
-    p = grid2.findFirst('@');
-    moves.chars().forEach(c -> { p = move2(p, direction.get((char) c)); });
+    robot = grid2.findFirst('@');
+    moves.chars().forEach(c -> { robot = move2(robot, Direction.ofSymbol(c)); });
     return grid2.findAll('[').mapToInt(this::gps).sum();
 }
 

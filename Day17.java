@@ -85,8 +85,8 @@ int topOctal(long n) {
    ...YYYYYYY        in inverse(t_1)
       <- s ->
    
- The overlap of XXXXXXX and YYYYYYY must be compatible. The last three bits must be the same, and it must be 
- possible to add the other bits of XXXXXXX to YYYYYYY in a later step. 
+ The overlap of XXXXXXX and YYYYYYY must be compatible. Different tests are possible, see below for 
+ one that works well.
  
  Keep adding matching inverses:
  
@@ -97,9 +97,8 @@ int topOctal(long n) {
  */
 
 boolean isCompatible(long oldBits, long newBits) {
-    return (oldBits & 7) == (newBits & 7) && Long.toBinaryString(newBits).endsWith(Long.toBinaryString(oldBits)); // TODO Better bit computation    
+    return (oldBits & 077) == (newBits & 077);
 }
-
 
 /*
  * @param s the max number of bits by which a is shifted to the right in one iteration of the loop   
@@ -108,7 +107,6 @@ Object part2(int s) {
     int n = instructions.size(); 
     long lastSMask = Util.pow2(s) - 1;
     var inverses = LongStream.range(0, Util.pow2(s + 3)).boxed().collect(Collectors.groupingBy(x -> topOctal(run(x))));
-    //Util.log(inverses);
     record Vertex(int level, long value) {} //level is index of last matched target digit
     var root = new Vertex(-1, 0);    
 
@@ -130,28 +128,8 @@ Object part2(int s) {
         else
             return Collections.emptySet();
     });
-    //Util.log(preds.keySet().stream().sorted(Comparator.comparing(Vertex::level).thenComparing(Vertex::value)).map(v -> Long.toOctalString(v.value) + " " + Long.toOctalString(run(v.value)) + " " + v.level).toList());
-    
-    // Util.log(preds);
     long target = Long.parseLong(instructions.toString().replaceAll("[^0-7]", ""), 8);
     return preds.keySet().stream().mapToLong(Vertex::value).filter(v -> run(v) == target).min().orElse(-1);
-    /*
-    int k = (3 * n - s) / 3 - 1;
-    int xbits = s + k * 3;
-    int ybits = 3 * n - xbits;    
-    var results = new TreeSet<Long>();
-    for (var v : preds.keySet().stream().filter(v -> v.level == k).toList()) {    
-        var p = Graphs.path(preds, v);
-        long x = p.getLast().value;
-        x = x & (Util.pow2(xbits) - 1);
-        for (long y = 0; y < Util.pow2(ybits); y++) {
-            long z = y << xbits | x;
-            if (run(z) == target) results.add(z);
-        }
-    }
-    
-    return results.size() > 0 ? results.getFirst() : -1;
-    */    
 }
 
 void main() throws IOException {
@@ -162,7 +140,6 @@ void main() throws IOException {
         parse(Util.inputPath("b"));
         IO.println(part1());
         IO.println(part2(3));
-        Util.logging = true;
         parse(Util.inputPath("z"));    
         IO.println(part1());
         IO.println(part2(7));
