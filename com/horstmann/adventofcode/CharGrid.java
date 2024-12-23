@@ -27,7 +27,7 @@ public class CharGrid {
 	    return result;
     }
 
-	public static CharGrid parse(List<String> lines) throws IOException {
+	public static CharGrid parse(List<String> lines) {
         var result = new CharGrid();
         result.grid = lines.stream().map(String::toCharArray).toArray(char[][]::new);
         return result;
@@ -73,6 +73,17 @@ public class CharGrid {
         return r;
     }
 
+    public Set<Location> taxicabDisc(Location p, int d) {
+        var r = new HashSet<Location>();
+        for (int dr = -d; dr <= d; dr++) 
+            for (int dc = -(d - Math.abs(dr)); dc <= d - Math.abs(dr); dc++) {
+                Location n = p.movedBy(dr, dc);
+                if (isValid(n)) 
+                    r.add(n);
+            }   
+        return r;
+    }                
+    
     public Set<Location> sameNeighbors(Location p) { // for floodfill
         var r = new HashSet<Location>();
         for (var d : Direction.MAIN_DIRECTIONS) {

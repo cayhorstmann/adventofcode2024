@@ -40,6 +40,8 @@ public class Util {
     public static List<Long> parseLongs(String line, String separatorRegex) { 
         return Stream.of(line.split(separatorRegex)).filter(l -> l.length() > 0).map(Long::parseLong).toList();
     }
+    
+    // TODO parse empty-line separated blocks
         
     public static Path inputPath(String suffix) { 
         StackWalker walker = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
@@ -131,6 +133,10 @@ public class Util {
         long r = 1;
         for (int i = 1; i <= n; i++) r <<= 1;
         return r;
+    }
+    
+    public static int sign(long n) {
+        return n == 0 ? 0 : n > 0 ? 1 : -1;
     }
     
     public static <T> Set<T> union(Set<? extends T> a, Set<? extends T> b) {

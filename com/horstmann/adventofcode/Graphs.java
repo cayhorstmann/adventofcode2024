@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -17,8 +18,10 @@ import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.ToIntBiFunction;
-import java.util.stream.Collectors;
+
+// TODO Bidirectional BFS https://zdimension.fr/everyone-gets-bidirectional-bfs-wrong/
 
 public class Graphs {
     /**
@@ -187,30 +190,64 @@ public class Graphs {
         result.addAll(vs);
         return result;
     }
-
-	
-	private static <V> Set<List<V>> simplePathsHelper(V from, V to, Function<V, Set<V>> neighbors, Set<V> avoid, Set<List<V>> prefixes) {
-	    Util.log(from, to, avoid.size(), prefixes.iterator().next().size());
+   
+   
+   /*
+	private static <V> Set<List<V>> simplePathsHelper(V from, V to, Function<V, Set<V>> neighbors, Set<V> avoid, Set<List<V>> prefixes, Predicate<List<V>> prune) {
 		if (from.equals(to)) {
 			return prefixes;
 		}
 		var result = new HashSet<List<V>>();
 		for (V n : neighbors.apply(from)) {
 			if (!avoid.contains(n)) {
-				var prefixes2 = prefixes.stream().map(p -> append(p, n)).collect(Collectors.toSet());
+				var prefixes2 = prefixes.stream().map(p -> append(p, n)).filter(Predicate.not(prune)).collect(Collectors.toSet());
 				var avoid2 = new HashSet<V>(avoid);
 				avoid2.add(n);
-				Collection<? extends List<V>> result2 = simplePathsHelper(n, to, neighbors, avoid2, prefixes2);
+				Collection<? extends List<V>> result2 = simplePathsHelper(n, to, neighbors, avoid2, prefixes2, prune);
 				result.addAll(result2);
 			}
 		}
 		return result;
 	}
-	
+    */	
 	public static <V> Set<List<V>> simplePaths(V from, V to, Function<V, Set<V>> neighbors) {
-		return simplePathsHelper(from, to, neighbors, Set.of(from), Set.of(List.of(from)));
+		return simplePaths(from, to, neighbors, _ -> false);
 	}	
-	
+    /**
+     * 
+     * @param <V> the vertex type
+     * @param from the source vertex
+     * @param to the target vertex
+     * @param neighbors yields the neighbors of a vertex
+     * @param prune called with paths starting at from. Return false if this path should not be extended
+     * (because it is too long, or has some other undesirable property)
+     * @return all simple paths (without repeated vertices) joining from with to  
+     */
+   /*
+    public static <V> Set<List<V>> simplePaths(V from, V to, Function<V, Set<V>> neighbors, Predicate<List<V>> prune) {
+        return simplePathsHelper(from, to, neighbors, Set.of(from), Set.of(List.of(from)), prune);
+    }   
+	*/
+
+   public static <V> Set<List<V>> simplePaths(V from, V to, Function<V, Set<V>> neighbors, Predicate<List<V>> prune) {
+       Queue<List<V>> pathsToExtend = new LinkedList<>();
+       Set<List<V>> completed = new LinkedHashSet<>();
+       pathsToExtend.add(List.of(from));
+       while (!pathsToExtend.isEmpty()) {
+           List<V> path = pathsToExtend.remove();
+           for (V n : neighbors.apply(path.getLast())) {
+               if (!path.contains(n)) {
+                   List<V> extended = append(path, n);
+                   if (!prune.test(extended)) {
+                       if (n.equals(to)) completed.add(extended);
+                       else pathsToExtend.add(extended);
+                   }
+               }
+           }
+       }
+       return completed;
+   }   
+   
 	public static <V> Map<V, Integer> dijkstraCosts(V from, Function<V, Set<V>> neighbors, ToIntBiFunction<V, V> neighborDistances) {
 		Map<V, Integer> dist = new HashMap<>();
 		Set<V> selected = new HashSet<>();
