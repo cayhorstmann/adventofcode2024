@@ -49,6 +49,11 @@ public class Util {
         return Path.of("inputs/input" + day + suffix); 
     }
     
+    public static Path outputPath(String suffix) { 
+        StackWalker walker = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
+        String day = walker.walk(s -> s.filter(f -> f.getMethodName().equals("main")).findFirst()).get().getClassName().replaceAll("\\D", "");
+        return Path.of("outputs/output" + day + suffix); 
+    }
     /*
      * TODO: all pairs? all distinct pairs? All combinations? (day 5, day 8)
      */
@@ -139,21 +144,21 @@ public class Util {
         return n == 0 ? 0 : n > 0 ? 1 : -1;
     }
     
-    public static <T> Set<T> union(Set<? extends T> a, Set<? extends T> b) {
+    public static <T> Set<T> union(Collection<? extends T> a, Collection<? extends T> b) {
         var result = new HashSet<T>();
         result.addAll(a);
         result.addAll(b);
         return result;
     }
     
-    public static <T> Set<T> intersection(Set<? extends T> a, Set<? extends T> b) {
+    public static <T> Set<T> intersection(Collection<? extends T> a, Collection<? extends T> b) {
         var result = new HashSet<T>();
         result.addAll(a);
         result.retainAll(b);
         return result;
     }
 
-    public static <T> Set<T> difference(Set<? extends T> a, Set<? extends T> b) {
+    public static <T> Set<T> difference(Collection<? extends T> a, Collection<? extends T> b) {
         var result = new HashSet<T>();
         result.addAll(a);
         result.removeAll(b);

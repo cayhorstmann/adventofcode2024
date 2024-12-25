@@ -1,5 +1,7 @@
 import com.horstmann.adventofcode.*;
 
+// TODO Make a version with https://en.wikipedia.org/wiki/Bron%E2%80%93Kerbosch_algorithm
+
 void parse(Path path) throws IOException {
     edges = Files.lines(path).map(l -> Set.of(l.split("-"))).map(Clique::new).collect(Collectors.toSet());
     vertices = new TreeSet<>();
