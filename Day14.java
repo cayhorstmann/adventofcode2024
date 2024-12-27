@@ -51,7 +51,7 @@ boolean hasClump(CharGrid g, int cutoff) {
 }
 
 Object part2() {
-    for (int t = 0; t < Util.lcm(HEIGHT, WIDTH); t++) {
+    for (int t = 0; t < Numbers.lcm(HEIGHT, WIDTH); t++) {
         var grid = new CharGrid(HEIGHT, WIDTH, ' '); 
         for (var r : robots) {
             var p = move(r, t);

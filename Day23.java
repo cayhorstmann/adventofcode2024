@@ -1,7 +1,5 @@
 import com.horstmann.adventofcode.*;
 
-// TODO Make a version with https://en.wikipedia.org/wiki/Bron%E2%80%93Kerbosch_algorithm
-
 void parse(Path path) throws IOException {
     edges = Files.lines(path).map(l -> Set.of(l.split("-"))).map(Clique::new).collect(Collectors.toSet());
     vertices = new TreeSet<>();
@@ -34,7 +32,7 @@ Object part1() {
     for (var e : edges) {
         for (var w : vertices) {
             if (e.allAdjacentTo(w)) {
-                var c = new Clique(Util.union(e.vertices, Set.of(w)));
+                var c = new Clique(Sets.union(e.vertices, Set.of(w)));
                 if (c.hasChief()) {
                     triangles.add(c);
                     triangleVertices.addAll(c.vertices);
@@ -55,7 +53,7 @@ Object part2() {
         for (var e : cliques) {
             for (var w : cliqueVertices) {
                 if (e.allAdjacentTo(w)) {
-                    var c = new Clique(Util.union(e.vertices, Set.of(w)));
+                    var c = new Clique(Sets.union(e.vertices, Set.of(w)));
                     biggerCliques.add(c);
                     biggerCliqueVertices.addAll(c.vertices);
                 }

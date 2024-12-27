@@ -61,7 +61,7 @@ void move2(Direction d) {
 void doMove(CharGrid grid, SequencedSet<Location> locations, Direction d) {
     var newLocations = locations.stream().map(l -> l.moved(d)).collect(Collectors.toSet());
     var freeLocations = grid.findAll('.').collect(Collectors.toSet());
-    if (Util.union(freeLocations, locations).containsAll(newLocations)) {
+    if (Sets.union(freeLocations, locations).containsAll(newLocations)) {
         for (var l : locations) {
             var n = l.moved(d);
             grid.put(n,  grid.get(l));

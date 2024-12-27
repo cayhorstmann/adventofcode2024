@@ -5,25 +5,17 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Util {
-    public static String reverse(String s) { return new StringBuilder(s).reverse().toString(); }
+// TODO Polygon volume https://en.m.wikipedia.org/wiki/Shoelace_formula
 
-    public static <T> T middle1(List<T> oddSizeList) { return oddSizeList.get(oddSizeList.size() / 2); }
-    public static <T> List<T> middle2(List<T> evenSizeList) { 
-        int m = evenSizeList.size() / 2;
-        return List.of(evenSizeList.get(m), evenSizeList.get(m + 1)); 
-    }
-    public static <T> List<T> allButFirst(List<T> lst) { return lst.subList(1, lst.size()); }
-    public static <T> List<T> allButLast(List<T> lst) { return lst.subList(0, lst.size() - 1); }
+public class Util {
+    public static String reversed(String s) { return new StringBuilder(s).reverse().toString(); }
     
     public static <T> Comparator<T> comparatorFromOrder(BiPredicate<T, T> order) {
         return (x, y) -> x.equals(y) ? 0 : order.test(x,  y) ? -1 : 1;        
@@ -54,10 +46,7 @@ public class Util {
         String day = walker.walk(s -> s.filter(f -> f.getMethodName().equals("main")).findFirst()).get().getClassName().replaceAll("\\D", "");
         return Path.of("outputs/output" + day + suffix); 
     }
-    /*
-     * TODO: all pairs? all distinct pairs? All combinations? (day 5, day 8)
-     */
-    
+
     public static boolean logging = true;
     public static int margin = 100;
 
@@ -117,51 +106,5 @@ public class Util {
         long start = System.nanoTime();
         t.run();
         IO.println("%.3f sec".formatted((System.nanoTime() - start) / 1E9));
-    }
-    
-    public static long gcd(long a, long b) {
-        a = Math.abs(a);
-        b = Math.abs(b);
-        while (b != 0) {
-            var temp = b;
-            b = a % b;
-            a = temp;
-        }
-        return a;
-    }
-    
-    public static long lcm(long a, long b) {
-        return a * b / gcd(a, b);
-    }
-    
-    public static long pow2(int n) {
-        long r = 1;
-        for (int i = 1; i <= n; i++) r <<= 1;
-        return r;
-    }
-    
-    public static int sign(long n) {
-        return n == 0 ? 0 : n > 0 ? 1 : -1;
-    }
-    
-    public static <T> Set<T> union(Collection<? extends T> a, Collection<? extends T> b) {
-        var result = new HashSet<T>();
-        result.addAll(a);
-        result.addAll(b);
-        return result;
-    }
-    
-    public static <T> Set<T> intersection(Collection<? extends T> a, Collection<? extends T> b) {
-        var result = new HashSet<T>();
-        result.addAll(a);
-        result.retainAll(b);
-        return result;
-    }
-
-    public static <T> Set<T> difference(Collection<? extends T> a, Collection<? extends T> b) {
-        var result = new HashSet<T>();
-        result.addAll(a);
-        result.removeAll(b);
-        return result;
     }
 }

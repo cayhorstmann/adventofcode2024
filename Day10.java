@@ -22,7 +22,7 @@ Object part1() {
     for (var start : zeroes)
         for (var end : nines) {
             int count = Graphs.simplePaths(start, end, this::neighbors).size();
-            if (count >= 1) sum1 ++;
+            if (count >= 1) sum1++;
             sum2 += count;
         }
     return sum1;

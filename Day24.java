@@ -7,15 +7,15 @@ void parse(Path path) throws IOException {
     int gates = 0;
 
     for (String line : Files.readAllLines(path)) {
-        String[] parts = line.split("[:\\s]+");
-        if (parts.length == 2) {
-            values.put(parts[0], new Constant(parts[0], Integer.parseInt(parts[1])));
-        } else if (parts.length == 5) {
-            values.put(parts[4], new Expression(parts[4], parts[0], parts[1], parts[2]));
+        var parts = List.of(line.split("[:\\s]+"));
+        if (parts.size() == 2) {
+            values.put(parts.get(0), new Constant(parts.get(0), Integer.parseInt(parts.get(1))));
+        } else if (parts.size() == 5) {
+            values.put(parts.get(4), new Expression(parts.get(4), parts.get(0), parts.get(1), parts.get(2)));
             gates++;
-            out.printf("\"%s\" -> \"%s\"%n", parts[0], parts[1] + gates);
-            out.printf("\"%s\" -> \"%s\"%n", parts[2], parts[1] + gates);
-            out.printf("\"%s\" -> \"%s\"%n", parts[1] + gates, parts[4]);
+            out.printf("\"%s\" -> \"%s\"%n", parts.get(0), parts.get(1) + gates);
+            out.printf("\"%s\" -> \"%s\"%n", parts.get(2), parts.get(1) + gates);
+            out.printf("\"%s\" -> \"%s\"%n", parts.get(1) + gates, parts.get(4));
         } else {
             inputSize = values.size() / 2;
         }
@@ -88,8 +88,8 @@ int firstFailure() {
                 set("x", x << s);
                 set("y", y << s);
                 if (get("z") != get("x") + get("y")) {                    
-                    int d = BitSet.valueOf(new long[] { get("z") ^ (get("x") + get("y")) }).nextSetBit(0);
-                    return d - 3; // TODO Change to d, subtract 3 elsewhere? If in fact useful...
+                    int d = Numbers.lowestSetBit(get("z") ^ (get("x") + get("y")));
+                    return d - 3; 
                 }
             }
         }
@@ -161,9 +161,9 @@ Object part2() throws IOException {
         for (int i = 0; i < s; i++) {
             prevdeps.addAll(dependencies("z%02d".formatted(i)));        
         }
-        var faildeps = Util.difference(dependencies("z%02d".formatted(s + 3)), prevdeps);
-        var rest = Util.difference(values.keySet(), faildeps);
-        rest = Util.difference(rest, prevdeps);
+        var faildeps = Sets.difference(dependencies("z%02d".formatted(s + 3)), prevdeps);
+        var rest = Sets.difference(values.keySet(), faildeps);
+        rest = Sets.difference(rest, prevdeps);
         for (var o : faildeps) Util.log(s, o, trySwap(o, rest, s));
     }
     return null; // TODO return sorted list of swaps

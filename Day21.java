@@ -6,24 +6,9 @@ void parse(Path path) throws IOException {
     codes = Files.readAllLines(path);
 }
 
-// TODO Util
-<S, T, U> Set<U> bimap(Set<S> lefts, Set<T> rights, BiFunction<S, T, U> f) {
-    return lefts.stream().flatMap(s -> rights.stream().map(t -> f.apply(s, t))).collect(Collectors.toSet());
-}
-
-<S> Set<S> reduceAll(List<Set<S>> operands, BinaryOperator<S> operator) {
-    if (operands.isEmpty()) throw new IllegalArgumentException("Missing operands");
-    if (operands.size() == 1) return operands.getFirst();
-    else return bimap(operands.getFirst(), reduceAll(operands.subList(1, operands.size()), operator), operator);
-}
-
-record Pair<T>(T first, T second) {} // TODO Try to eliminate
-
 class Keypad {
     CharGrid grid;
     Location aim;
-    Location gap; // TODO eliminate
-    Set<Location> locations; // TODO eliminate
     Map<Character, Location> keys = new TreeMap<>();
     Map<String, Set<String>> paths = new HashMap<>(); 
         // key is source + target, value is all <>^vA paths from location of source to location of target
@@ -32,7 +17,6 @@ class Keypad {
     Keypad(String layout) {
         grid = CharGrid.parse(List.of(layout.split("\n")));
         aim = grid.findFirst('A');
-        gap = grid.findFirst(' '); // TODO Do we need it?
         for (var l : grid.locations().toList()) {
             char key = grid.get(l);
             if (key != ' ') keys.put(key, l);
@@ -46,21 +30,18 @@ class Keypad {
                 var distance = floc.taxicabDistance(tloc);
                 if (distance == 0) paths.put(ft, Set.of("A")); 
                 else {
-                    var r = Graphs.simplePaths(floc, tloc, l -> Util.intersection(grid.mainNeighbors(l), keys.values()), p -> p.size() - 1 > distance);                    
+                    var r = Graphs.simplePaths(floc, tloc, l -> Sets.intersection(grid.mainNeighbors(l), keys.values()), p -> p.size() - 1 > distance);                    
                     paths.put(ft, r.stream().map(this::moves).collect(Collectors.toSet()));
                 }
             }
         }
     }
     
-    // TODO Add symbol() method to Direction
-    Map<Direction, String> dirs = Map.of(Direction.N, "^", Direction.E, ">", Direction.S, "v", Direction.W, "<");
-    
     String moves(List<Location> path) {
         var result = new StringBuilder();
         for (int i = 0; i < path.size() - 1; i++) {
             var d = path.get(i).to(path.get(i + 1));
-            result.append(dirs.get(d));
+            result.append(d.symbol());
         }
         result.append("A");  
         return result.toString();
@@ -89,7 +70,7 @@ class Keypad {
             memo.put(part, r);
             partLists.add(r);
         }
-        r = reduceAll(partLists, String::concat);
+        r = Sets.reduceAll(partLists, String::concat);
         memo.put(s, r);
         return r;
     }
@@ -110,7 +91,6 @@ class Keypad {
         for (var s : strings) {
             result.addAll(encode(s));
         }
-        // TODO Util method to collect all minima?
         var minlength = result.stream().mapToInt(String::length).min().getAsInt();
         return result.stream().filter(s -> s.length() == minlength).collect(Collectors.toSet());
     }

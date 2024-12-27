@@ -43,7 +43,7 @@ boolean checkTransitive(List<Integer> is) {
 }
 
 Object part1() throws IOException {
-    return updates.stream().filter(this::inOrder).mapToInt(Util::middle1).sum();
+    return updates.stream().filter(this::inOrder).mapToInt(Lists::middle1).sum();
 }
 
 Object part2() throws IOException {
@@ -54,7 +54,7 @@ Object part2() throws IOException {
         if (!checkTransitive(u)) IO.println(u); // Never happened for my input
         if (!inOrder(u)) {
             u = u.stream().sorted(Util.comparatorFromOrder(this::inOrder)).toList();
-            sum += Util.middle1(u); 
+            sum += Lists.middle1(u); 
         }
     }
     return sum;

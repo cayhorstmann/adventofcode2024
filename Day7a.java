@@ -18,7 +18,7 @@ import com.horstmann.adventofcode.*;
 record Equation(long result, List<Long> operands) {
     static Equation parse(String line) {
         List<Long> parts = Util.parseLongs(line, ":? ");
-        return new Equation(parts.get(0), Util.allButFirst(parts));
+        return new Equation(parts.get(0), Lists.withoutFirst(parts));
     }
 
     Set<Equation> neighbors(List<BiFunction<Long, Long, Optional<Long>>> operators) {
@@ -26,7 +26,7 @@ record Equation(long result, List<Long> operands) {
         else return operators.stream()
             .map(op -> op.apply(result, operands.getLast()))
             .filter(Optional::isPresent)
-            .map(r -> new Equation(r.get(), Util.allButLast(operands)))
+            .map(r -> new Equation(r.get(), Lists.withoutLast(operands)))
             .collect(Collectors.toSet());
     }
     

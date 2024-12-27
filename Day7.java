@@ -3,7 +3,7 @@ import com.horstmann.adventofcode.*;
 record Equation(long result, List<Long> operands) {
     static Equation parse(String line) {
         List<Long> parts = Util.parseLongs(line, ":? ");
-        return new Equation(parts.get(0), Util.allButFirst(parts));
+        return new Equation(parts.get(0), Lists.withoutFirst(parts));
     }
     
     boolean hasSolution(List<LongBinaryOperator> operators) { return hasSolution(operands.get(0), 1, operators); }

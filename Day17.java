@@ -105,8 +105,8 @@ boolean isCompatible(long oldBits, long newBits) {
  */
 Object part2(int s) {
     int n = instructions.size(); 
-    long lastSMask = Util.pow2(s) - 1;
-    var inverses = LongStream.range(0, Util.pow2(s + 3)).boxed().collect(Collectors.groupingBy(x -> topOctal(run(x))));
+    long lastSMask = Numbers.pow2(s) - 1;
+    var inverses = LongStream.range(0, Numbers.pow2(s + 3)).boxed().collect(Collectors.groupingBy(x -> topOctal(run(x))));
     record Vertex(int level, long value) {} //level is index of last matched target digit
     var root = new Vertex(-1, 0);    
 
@@ -122,7 +122,7 @@ Object part2(int s) {
             return inverses.get(instructions.get(l))
                     .stream()
                     .filter(i -> isCompatible(v.value >> 3 * l, i & lastSMask))
-                    .map(i -> new Vertex(l, (i << 3 * l) | v.value & (Util.pow2(3 * l) - 1)))
+                    .map(i -> new Vertex(l, (i << 3 * l) | v.value & (Numbers.pow2(3 * l) - 1)))
                     .collect(Collectors.toSet()); 
             }
         else

@@ -1,5 +1,3 @@
-import java.util.Arrays;
-
 import com.horstmann.adventofcode.*;
 
 List<Long> secretNumbers;
@@ -84,14 +82,6 @@ Object part2() {
                 }
     var finalBest = best;
     return buyers.stream().mapToInt(b -> b.bananas(finalBest)).sum();
-}
-
-void test() {
-    var b = new Buyer(123);
-    // var s = new Sequence(new int[] { -2,1,-1,3 });
-    var s = new Sequence(-1, -1, 0, 2);
-    Util.log(b.bananas(s));
-    System.exit(0);
 }
 
 void main() throws IOException {
